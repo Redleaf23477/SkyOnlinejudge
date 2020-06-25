@@ -38,7 +38,7 @@ use \SkyOJ\Core\User\User;
 use \SkyOJ\Core\Permission\ObjectLevel;
 use \SkyOJ\File\ProblemDataManager;
 use \SkyOJ\Judge\JudgeProfileEnum;
-use \SkyOJ\Score;
+use \SkyOJ\Score\ScoreModeEnum;
 
 class Container extends \SkyOJ\Core\CommonObject implements \SkyOJ\Core\Permission\Permissible
 {
@@ -72,6 +72,8 @@ class Container extends \SkyOJ\Core\CommonObject implements \SkyOJ\Core\Permissi
             'content_type' => ProblemDescriptionEnum::MarkDown,
             'memory_limit' => 1048576, //1 Mb
             'runtime_limit' => 1000,   //1 Second
+            'score_type' => ScoreModeEnum::Average,
+            'score_data' => '{"notes": "This function is unfinished yet"}', // unfinished function
         ];
         return self::insertInto($default);
     }
