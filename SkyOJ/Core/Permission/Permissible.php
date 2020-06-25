@@ -2,6 +2,9 @@
 
 use SkyOJ\Core\User\User;
 
+/**
+ * Interface on basic permissions
+ */
 interface Permissible
 {
     public function readable(User $user):bool;

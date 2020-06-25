@@ -1,5 +1,8 @@
-<?php namespace SkyOJ\Problem\Testcase;
+<?php namespace SKYOJ\Problem\Testcase;
 
+/**
+ * Class to store problem Settings
+ */
 class Data
 {
     private $m_id;

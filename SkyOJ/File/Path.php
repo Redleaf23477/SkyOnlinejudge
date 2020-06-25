@@ -3,7 +3,19 @@
 class Path
 {
     const DIR_SPILT_CHAR = '/';
+
+    /**
+     * Stores a path in Linux style
+     */
     private static $base;
+
+    /**
+     * Turn Windows sytle path to Linux style path if needed.
+     * Stores it in $base.
+     * @param string $s
+     *  Path to be converted
+     * @return null
+     */
     static function initialize(string $s)
     {
         if( substr($s,-1)!==self::DIR_SPILT_CHAR )
@@ -15,6 +27,10 @@ class Path
         Path::$base = $s;
     }
 
+    /**
+     * get base
+     * @return string
+     */
     static public function base():string
     {
         return Path::$base;

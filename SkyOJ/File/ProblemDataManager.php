@@ -1,13 +1,25 @@
 <?php namespace SkyOJ\File;
-/*
-base    /cont //put problem decript
-        /assert //put static assert
-        /testdata/data/
-        /testdata/make/
-        /testdata/checker/
-        judge.json //judge setting
 
-*/
+
+/**
+ * ### Directory Format
+ * 
+ * ```
+ * base     /cont               // put problem descript
+ *          /attach             // put static attachments
+ *          /testdata/data/
+ *          /testdata/make/
+ *          /testdata/checker/
+ *          judge.json          // judge setting
+ * ```
+ */
+
+
+ /**
+  * Data Structure to store a problem.
+  * Builds directory structure of a problem.
+  * It seems that it only handles test data files.
+  */
 class ProblemDataManager extends ManagerBase
 {
     #predefine some file name
@@ -37,6 +49,11 @@ class ProblemDataManager extends ManagerBase
         }
     }
 
+    /**
+     * Build dirs to store problem assets
+     * @return bool
+     *  Success or not
+     */
     public function buildStructure():bool
     {
         $res = true;
@@ -48,17 +65,37 @@ class ProblemDataManager extends ManagerBase
         return $res;
     }
 
+    /**
+     * Check whether $name is a valid file name
+     * @param any $name
+     *  Name of dir
+     * @return bool
+     *  Is valid name
+     */
     public function checkFilename($name):bool
     {
         if( !is_string($name) ) return false;
         return preg_match(self::FILENAME_PATTEN,$name);
     }
 
+    /**
+     * Get all attachments
+     * @return array
+     *  array of filenames of attachments
+     */
     public function getAttachFiles():array
     {
         return glob($this->base().self::ATTACH_DIR.'*');
     }
 
+    /**
+     * Get all test cases files.
+     * Ignore invalid test files (e.g. only input or output) if $require_valid_files is true
+     * @param bool $require_valid_files
+     *  Whether to ignore invalid test files
+     * @return array
+     *  Return array of test data filenames
+     */
     public function getTestdataFiles(bool $require_valid_files = false):array
     {
         $files = glob($this->base().self::TESTDATA_DIR.'*');
@@ -102,6 +139,15 @@ class ProblemDataManager extends ManagerBase
         return $testcases;
     }
 
+    /**
+     * Extract and copy test files (*.in, *.ans) into testdata/data/
+     * @param string $filepath
+     *  Path to zip file that contains the testdata files
+     * @param bool $cover
+     *  Useless parameter
+     * @return array
+     *  Useless return
+     */
     public function copyTestcasesZip(string $filepath, bool $cover = true):array
     {
         if( !class_exists('\\ZipArchive') )
@@ -133,6 +179,10 @@ class ProblemDataManager extends ManagerBase
         return [];
     }
 
+    /**
+     * Delete test data files
+     * @return null
+     */
     public function cleanTestdata()
     {
         $files = glob($this->base().self::TESTDATA_DIR.'*');

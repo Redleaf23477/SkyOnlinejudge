@@ -19,7 +19,12 @@ class CommonObjectError extends \Exception
         parent::__construct(SKY_ERROR::str($code).':'.$msg, $code, $previous);
     }
 }
+
+
 //TODO: rename it to SQLBaseObject
+/**
+ * Abstract that interacts with SQL database
+ */
 abstract class CommonObject
 {
     
@@ -28,16 +33,38 @@ abstract class CommonObject
     protected $sqldata = [];
     protected $lock = false;
 
+    /**
+     * Get database data with given index
+     * @param string $name
+     *  Name of index
+     * @return any
+     *  Data stored in database
+     */
     public function __get(string $name)
     {
         return $this->sqldata[$name];
     }
 
+    /**
+     * Check whether database data has an index
+     * @param string $name
+     *  Name of index to be checked
+     * @return bool
+     *  Exist or not
+     */
     public function __isset(string $name)
     {
         return isset($this->sqldata[$name]);
     }
 
+    /**
+     * Set value of database data with specific index
+     * @param string $name
+     *  Name of index
+     * @param any $var
+     *  Value to set
+     * @return null
+     */
     public function __set(string $name,$var):void
     {
         $called = "checkSet_".$name;
@@ -45,7 +72,7 @@ abstract class CommonObject
         {
             trigger_error("Set {$name} without Check is danger!");
         }
-        elseif ( !$this->$called($var) )
+        else if ( !$this->$called($var) )
         {
             throw new CommonObjectError($called,SKY_ERROR::UNKNOWN_ERROR);
         }
@@ -53,7 +80,16 @@ abstract class CommonObject
             $this->UpdateSQLLazy($name,$var);
         $this->sqldata[$name] = $var;
     }
-
+    
+    /**
+     * Load data from database table.  
+     * Store it in ram and return.
+     * Run callback function if there is one.
+     * @param int $id
+     *  Value of prime key
+     * @return bool
+     *  Success or not
+     */
     public function load(int $id)
     {
         if( !isset(static::$table,static::$prime_key) )
@@ -70,6 +106,14 @@ abstract class CommonObject
         return true;
     }
 
+    /**
+     * Assign data, store in ram.
+     * Run callback function if there is one.
+     * @param array $data
+     *  Data that is given
+     * @return bool
+     *  Success or not
+     */
     public function loadByData(array $data)
     {
         $this->sqldata = $data;
@@ -78,6 +122,13 @@ abstract class CommonObject
         return true;
     }
 
+    /**
+     * Load a range of data from database table and return.
+     * @param int $id
+     *  Value of prime key
+     * @return array
+     *  Data fetched from database
+     */
     function loadRange(int $start,int $end)
     {
         if( !isset(static::$table,static::$prime_key) )
@@ -98,6 +149,15 @@ abstract class CommonObject
         return $res;
     }
 
+    /**
+     * Load from data from database table and return value of specific column.
+     * @param int $id
+     *  Value of prime key
+     * @param string $col
+     *  Name of column
+     * @return bool
+     *  Data of the column
+     */
     static function fetchColByPrimeID(int $id,string $col)
     {
         $table = DB::tname(static::$table);
@@ -106,6 +166,16 @@ abstract class CommonObject
         return DB::fetchEx("SELECT `$col` FROM `{$table}` WHERE `{$keyname}`=?",$id);
     }
 
+    /**
+     * Store ($col, $val) pair temporarily in $host in ram.
+     * If $col === null, return data stored in $host and clear $host.
+     * @param string $col
+     *  Name of column
+     * @param any $val
+     *  Data of column
+     * @return any
+     *  null if storing value, data in $host if $col === null
+     */
     protected function UpdateSQLLazy(string $col = null,$val = null)
     {
         static $host = [];
@@ -118,6 +188,11 @@ abstract class CommonObject
         $host[] = [$col,$val];
     }
 
+    /**
+     * Store lazy updated data into database.
+     * @return bool
+     *  Success or not
+     */
     public function save():bool
     {
         $table = DB::tname(static::$table);
@@ -148,6 +223,9 @@ abstract class CommonObject
         
     }
 
+    /**
+     * Call sql INSERT INTO
+     */
     protected static function insertInto( array $insert_data )
     {
         $table = DB::tname(static::$table);

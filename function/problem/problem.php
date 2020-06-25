@@ -9,7 +9,7 @@ if (!defined('IN_SKYOJSYSTEM')) {
 /*
     /problem/list/[page] ? quest str (default)
     /problem/view/[PID] 
-    /pboblem/new
+    /problem/new
     /problem/modify/[PID]
     /problem/api/[method]
 */

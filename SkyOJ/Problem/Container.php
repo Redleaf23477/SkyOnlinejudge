@@ -1,13 +1,39 @@
 <?php namespace SkyOJ\Problem;
-/*
-base    /cont //put problem decript
-        /assert //put static assert
-        /testdata/data/
-        /testdata/make/
-        /testdata/checker/
-        judge.json //judge setting
 
-*/
+/**
+ * ### Directory Format
+ * 
+ * ```
+ * base     /cont               // put problem descript
+ *          /attach             // put static attachments
+ *          /testdata/data/
+ *          /testdata/make/
+ *          /testdata/checker/
+ *          judge.json          // judge setting
+ * ```
+ * 
+ * ### Database Table Format
+ * 
+ * ```
+ * +-----------------+---------------+------+-----+---------+----------------+
+ * | Field           | Type          | Null | Key | Default | Extra          |
+ * +-----------------+---------------+------+-----+---------+----------------+
+ * | pid             | int           | NO   | PRI | NULL    | auto_increment |
+ * | owner           | int           | NO   |     | NULL    |                |
+ * | content_access  | int           | NO   |     | NULL    |                |
+ * | submit_access   | int           | NO   |     | NULL    |                |
+ * | codeview_access | int           | NO   |     | NULL    |                |
+ * | title           | text          | NO   |     | NULL    |                |
+ * | content_type    | int           | NO   |     | NULL    |                |
+ * | judge_profile   | int           | NO   |     | NULL    |                |
+ * | memory_limit    | int           | NO   |     | NULL    |                |
+ * | runtime_limit   | int           | NO   |     | NULL    |                |
+ * | score_type      | int           | NO   |     | NULL    |                |
+ * | score_data      | varchar(1000) | NO   |     | NULL    |                |
+ * +-----------------+---------------+------+-----+---------+----------------+
+ * ```
+ */
+
 use \SkyOJ\Core\User\User;
 use \SkyOJ\Core\Permission\ObjectLevel;
 use \SkyOJ\File\ProblemDataManager;
@@ -27,6 +53,13 @@ class Container extends \SkyOJ\Core\CommonObject implements \SkyOJ\Core\Permissi
 
     }
 
+    /**
+     * Create a problem with default values and insert to database
+     * @param int $owner
+     *  Id of problem setter
+     * @return int
+     *  Problem id
+     */
     static public function create(int $owner):int
     {
         $default = [
@@ -43,8 +76,15 @@ class Container extends \SkyOJ\Core\CommonObject implements \SkyOJ\Core\Permissi
         return self::insertInto($default);
     }
 
+    /**
+     * Callback function after $sqlData is modified
+     * @return bool
+     *  Always true
+     */
     protected function afterLoad()
     {
+        // ALERT: When is $this->pid and $this->content_type set?
+        // They should be set when loaded from database, but no codes are found
         $this->m_problem_data_manager = new ProblemDataManager($this->pid, true);
         $this->m_content = Content::init($this->content_type, $this->m_problem_data_manager);
         $this->json = json_decode($this->m_problem_data_manager->read(ProblemDataManager::PROBLEM_JSON_FILE),true);
