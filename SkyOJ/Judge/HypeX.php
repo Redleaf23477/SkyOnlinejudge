@@ -234,7 +234,7 @@ class HypeX extends Judge
             }
             case HypeX_FileMethodEnum::LOCAL_COPY:
             {
-                $this->m_storage = new LocalStorge($this->m_ssh_dir);
+                $this->m_storage = new LocalStorge($this->m_data_dir);
                 break;
             }
             default:
@@ -308,12 +308,12 @@ class HypeX extends Judge
                     if( !$sftp->put($ssh_dir.'/problem/HypeX'," ") ) throw new \Exception('SFTP 權限不足(put)');
                     break;
                 case HypeX_FileMethodEnum::LOCAL_COPY:
-                    @file_put_contents($data_dir."/Hypex", " ");
-                    if( !file_exists($data_dir."/Hypex") ) throw new \Exception('檔案無法寫入 '.$data_dir."/Hypex");
+                    @file_put_contents($data_dir."/HypeX", " ");
+                    if( !file_exists($data_dir."/HypeX") ) throw new \Exception('檔案無法寫入 '.$data_dir."/HypeX");
                     @mkdir($data_dir."/problem", 0744);
 
-                    @file_put_contents($data_dir."/problem/Hypex", " ");
-                    if( !file_exists($data_dir."/problem/Hypex") ) throw new \Exception('檔案無法寫入 '.$data_dir."/problem/Hypex");
+                    @file_put_contents($data_dir."/problem/HypeX", " ");
+                    if( !file_exists($data_dir."/problem/HypeX") ) throw new \Exception('檔案無法寫入 '.$data_dir."/problem/HypeX");
                     break;
                 default: throw new \Exception('file_method error');
             }
@@ -336,8 +336,9 @@ class HypeX extends Judge
 
     public function getCompilerInfo()
     {
+        // TODO: Update to fit your server
         return [
-            [0, LanguageCode::CPP  , "gcc -std=c++11 -O2"],
+            [0, LanguageCode::CPP  , "g++ -std=c++11 -O2"],
             [2, LanguageCode::PYTHON3, "python3 | LANG=en_US.UTF-8"]
         ];
     }
