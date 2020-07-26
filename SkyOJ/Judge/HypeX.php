@@ -41,7 +41,7 @@ interface RemoteFileAction
     public function isConnected():bool;
 }
 
-class LocalStorge implements RemoteFileAction
+class LocalStorage implements RemoteFileAction
 {
     private $base_dir;
     private $logined;
@@ -66,7 +66,7 @@ class LocalStorge implements RemoteFileAction
         $dir = $this->base_dir . $dir;
         if( file_exists($dir) && is_dir($dir) )
             return true;
-        return mkdir($dir, 0644, true);
+        return mkdir($dir, 0777, true);
     }
 
     public function putLocalFile(string $remote, string $local):bool
@@ -234,7 +234,7 @@ class HypeX extends Judge
             }
             case HypeX_FileMethodEnum::LOCAL_COPY:
             {
-                $this->m_storage = new LocalStorge($this->m_data_dir);
+                $this->m_storage = new LocalStorage($this->m_data_dir);
                 break;
             }
             default:
@@ -249,7 +249,7 @@ class HypeX extends Judge
 
         return [
             'data' => [
-                new \SKYOJ\HTML_INPUT_TEXT(['name'=>'judge','value'=>'','placeholder'=>'IP:Port/reqjudg','option'=>['help_text'=>'Judge 請求連結']]),
+                new \SKYOJ\HTML_INPUT_TEXT(['name'=>'judge','value'=>'','placeholder'=>'IP:Port/reqjudge','option'=>['help_text'=>'Judge 請求連結']]),
                 new \SKYOJ\HTML_HR(),
                 new \SKYOJ\HTML_INPUT_SELECT(['name'=>'file_method','key-pair'=>
                             HypeX_FileMethodEnum::getConstants()
