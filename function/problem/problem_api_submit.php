@@ -9,7 +9,7 @@ function problem_api_submitHandle()
 
     $pid = \SKYOJ\safe_post('pid');
     $compiler = \SKYOJ\safe_post('compiler');
-    $code = \SKYOJ\safe_post('code');
+    $code = base64_decode(\SKYOJ\safe_post('code'));
 
     try{
         if( isset($_FILES['codefile']) )

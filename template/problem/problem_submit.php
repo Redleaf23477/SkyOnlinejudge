@@ -21,7 +21,7 @@ $(document).ready(function()
                 return ;
             }
         }
-        $("#s_code").val(code);
+        $("#s_code").val(btoa(code.toString()));
         api_submit("<?=$SkyOJ->uri('problem','api','submit')?>","#submit","#info",function(res){
             <?=$tmpl['jscallback']??''?>
         });
