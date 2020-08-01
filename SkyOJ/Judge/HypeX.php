@@ -368,16 +368,40 @@ class HypeX extends Judge
         $json->metadata = null;
 
         //Add testcases
-        foreach( $chal->problem()->getTestdataInfo() as $data )
-        {
-            $test = new TestJson();
-            $test->test_idx  = $data->id();
-            $test->timelimit = $data->runtime_limit();
-            $test->memlimit  = $data->memory_limit();
-            $test->metadata  = new TestMetaJson();
-            $test->metadata->data[] = $data->id();
+        $test_score_data = json_decode($chal->problem()->score_data);
 
-            $json->test[] = $test;
+        if ( property_exists($test_score_data, 'tasks') )
+        {
+            $task_idx = 0;
+            $task_time = $chal->problem()->getTestdataInfo()[0]->runtime_limit();
+            $task_mem = $chal->problem()->getTestdataInfo()[0]->memory_limit();
+            
+            foreach( $test_score_data->tasks as $subtask )
+            {
+                $test = new TestJson();
+                $test->test_idx  = $task_idx;
+                $test->timelimit = $task_time;
+                $test->memlimit  = $task_mem;
+                $test->metadata  = new TestMetaJson();
+                $test->metadata->data = $subtask;
+
+                $json->test[] = $test;
+                $task_idx++;
+            }
+        }
+        else
+        {
+            foreach( $chal->problem()->getTestdataInfo() as $data )
+            {
+                $test = new TestJson();
+                $test->test_idx  = $data->id();
+                $test->timelimit = $data->runtime_limit();
+                $test->memlimit  = $data->memory_limit();
+                $test->metadata  = new TestMetaJson();
+                $test->metadata->data[] = $data->id();
+    
+                $json->test[] = $test;
+            }
         }
 
         $json->metadata = new ChalMetaJson();
