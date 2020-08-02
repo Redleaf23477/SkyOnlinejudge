@@ -10,21 +10,36 @@ use \SKYOJ\HTML_INPUT_BUTTOM;
 <script>
 $(document).ready(function()
 {
+    var cd_sec = 10;
+    var pid = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+    cookie_name = '_skyoj_pid_' + pid;
     $("#codesubmit").click(function(e)
     {
-        var editor = ace.edit("editor");
-        var code = editor.getValue();
-        if( code === '' )
+        if (document.cookie.split(';').some((item) => item.trim().startsWith(cookie_name+'='))) 
         {
-            if( !confirm('Are you sure to submit an empty code?') )
-            {
-                return ;
-            }
+            alert('同一題提交需間隔 '+cd_sec+' 秒');
         }
-        $("#s_code").val(btoa(code.toString()));
-        api_submit("<?=$SkyOJ->uri('problem','api','submit')?>","#submit","#info",function(res){
-            <?=$tmpl['jscallback']??''?>
-        });
+        else
+        {
+            var date = new Date();
+            date.setTime(date.getTime()+(cd_sec*1000));
+
+            document.cookie = cookie_name + '=1; expires=' + date.toGMTString();
+
+            var editor = ace.edit("editor");
+            var code = editor.getValue();
+            if( code === '' )
+            {
+                if( !confirm('Are you sure to submit an empty code?') )
+                {
+                    return ;
+                }
+            }
+            $("#s_code").val(btoa(code.toString()));
+            api_submit("<?=$SkyOJ->uri('problem','api','submit')?>","#submit","#info",function(res){
+                <?=$tmpl['jscallback']??''?>
+            });
+        }
     });
     function init()
     {
