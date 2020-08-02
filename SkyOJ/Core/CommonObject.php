@@ -124,8 +124,10 @@ abstract class CommonObject
 
     /**
      * Load a range of data from database table and return.
-     * @param int $id
-     *  Value of prime key
+     * @param int $start
+     *  Value of range start
+     * @param int $end
+     *  Value of range end
      * @return array
      *  Data fetched from database
      */
@@ -138,6 +140,57 @@ abstract class CommonObject
         $table = DB::tname(static::$table);
         $keyname = static::$prime_key;
         $data = DB::fetchAllEx("SELECT * FROM `{$table}` WHERE `{$keyname}` BETWEEN  ? AND ?",$start,$end);
+        $class = get_called_class();
+        $res = [];
+        foreach( $data as $row )
+        {
+            $p = new $class(null);
+            if( $p->loadByData($row) );
+                $res[] = $p;
+        }
+        return $res;
+    }
+
+    /**
+     * Load a range of data having specific values at some 
+     * fields from database table and return.
+     * @param int $start
+     *  Value of range start
+     * @param int $end
+     *  Value of range end
+     * @param array $conds
+     *  Conditions: ["key" => "value"]
+     * @return array
+     *  Data fetched from database
+     */
+    function loadRangeCond(int $start,int $end, array $conds)
+    {
+        if( !isset(static::$table,static::$prime_key) )
+        {
+            throw new CommonObjectError($called,SKY_ERROR::UNKNOWN_ERROR);
+        }
+        $table = DB::tname(static::$table);
+
+        $conds_keys = array_keys($conds);
+
+        // SELECT * FROM `{$table}` WHERE `{$key}` = ? and `{$key}` = ? and ... limit $start, $end-$start+1
+        $qry_str = "SELECT * FROM `{$table}`";
+        for( $i = 0; $i < count($conds_keys); ++$i )
+        {
+            if($i == 0) $qry_str .= " WHERE ";
+            else $qry_str .= " AND ";
+
+            $qry_str .= "`{$conds_keys[$i]}` = ?";
+        }
+
+        $lim_start = $start;
+        $lim_len = $end-$start+1;
+        $qry_str .= " limit $lim_start, $lim_len";
+
+        $param = array_merge(array($qry_str), array_values($conds));
+
+        $data = call_user_func_array("DB::fetchAllEx", $param);
+        
         $class = get_called_class();
         $res = [];
         foreach( $data as $row )
